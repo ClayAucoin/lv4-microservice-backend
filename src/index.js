@@ -12,7 +12,18 @@ app.get('/', (req, res) => {
   })
 });
 
-app.get("/api/v1/weather", (req, res) => {
+// input: place, time
+app.get("/api/v1/weather/:place/:year/:month/:day", (req, res) => {
+  const { place, year, month, day } = req.params
+  // const place = req.params.place
+  // const year = req.params.year
+  // const month = req.params.month
+  // const day = req.params.day
+
+  console.log("place:", place)
+  console.log("year:", year)
+  console.log("month:", month)
+  console.log("day:", day)
 
 
   res.json({
