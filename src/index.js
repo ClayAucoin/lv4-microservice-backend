@@ -13,53 +13,36 @@ app.get('/', (req, res) => {
 });
 
 // input: place, time
-app.get("/api/v1/weather/:place/:year/:month/:day", async (req, res) => {
-  const { place, year, month, day } = req.params
-  // const place = req.params.place
-  // const year = req.params.year
-  // const month = req.params.month
-  // const day = req.params.day
+app.get("/api/v1/weather/:zip/:year/:month/:day", async (req, res) => {
+  const { zip, year, month, day } = req.params
 
-  console.log("place:", place)
-  console.log("year:", year)
-  console.log("month:", month)
-  console.log("day:", day)
+  const apiKey = 'EJRHR5YF55YQRZQDZ4CNVDG7S';
+  const startDate = 'next7days';
+  const unitGroup = 'us';
 
-  const fetchUrl = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/New%20Orleans%2CLA?unitGroup=us&include=hours,events,current&contentType=json&key=EJRHR5YF55YQRZQDZ4CNVDG7S"
+
+
+  // protected route
+  const serviceKey = req.headers["x-service-key"]
+  if (serviceKey !== "73M4dP9I0t9RYXBYS4hAXfcQ9r42B2jd7lNXy0Pl") {
+    return res.json({ message: "Not authorized." })
+  }
+
+  const fetchUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${zip}/${startDate}?unitGroup=${unitGroup}&include=current&contentType=json&key=${apiKey}`;
 
   const result = await fetch(fetchUrl)
   const data = await result.json()
 
-  console.log(data)
+  // console.log(data)
 
-  // fetch(fetchUrl, {
-  //   method: 'GET',
-  //   headers: {}
-  // })
-  //   .then(response => {
-  //     if (!response.ok) {
-  //       throw response;
-  //     }
-  //     return response.json();
-  //   })
-  //   .then(weatherData => {
-  //     console.log("Weather data for New Orleans, LA:", weatherData);
-  //     // You can process weatherData here to display or analyze it
-  //   })
-  //   .catch(errorResponse => {
-  //     if (errorResponse.text) {
-  //       errorResponse.text().then(errorMessage => {
-  //         console.error("Error retrieving weather data:", errorMessage);
-  //       });
-  //     } else {
-  //       console.error("Unknown error occurred");
-  //     }
-  //   });
-
+  // where days.datetime = "2025-12-09"
   res.json({
-    precipitation_percent: "80%",
-    conditions: "Cloudy",
-    temp: "44"
+    temp: "53.0", // currentConditions.temp
+    precipitation: "0.0", // currentConditions.precip
+    conditions: "clear", // currentConditions.conditions
+    icon: "clear-day", // currentConditions.icon
+    sunrise: "06:45:34", // currentConditions.sunrise
+    sunset: "17:01:18", // currentConditions.sunset
   })
 })
 
