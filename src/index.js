@@ -2,6 +2,7 @@
 
 import express from 'express'
 import { config } from './config.js'
+import { validateWeatherQuery } from "./middleware/validators.js"
 
 const app = express();
 const PORT = config.port;
@@ -17,15 +18,17 @@ app.get('/', (req, res) => {
       month: '1-12',
       day: '1-31'
     },
-    format: '/api/v1/weather/{zip}/{year}/{month}/{day}',
-    example: '/api/v1/weather/70119/2024/12/25'
+    format: '/api/v1/weather?zip={zip}&year={year}&month={month}&day={day}',
+    example: '/api/v1/weather?zip=70123&year=2024&month=12&day=25'
   })
 });
 
 // input: place, time
 // input a req params: /api/v1/weather/:zip/:year/:month/:day
-app.get('/api/v1/weather', async (req, res) => {
-  const { zip, year, month, day } = req.query
+app.get('/api/v1/weather', validateWeatherQuery, async (req, res) => {
+  const { zip, year, month, day } = req.weatherParams
+
+  console.log(req.weatherParams)
 
   // retrieve config vars
   const apiKey = config.weather_key
@@ -83,3 +86,13 @@ const server = app.listen(PORT, () => {
 server.on('error', (e) => {
   console.error(e)
 })
+
+export function error404(req, res, next) {
+  res.status(404).json({
+    message: "Route not found",
+    details: {
+      path: req.path,
+      method: req.method
+    }
+  })
+}
