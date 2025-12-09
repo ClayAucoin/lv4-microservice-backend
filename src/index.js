@@ -23,8 +23,9 @@ app.get('/', (req, res) => {
 });
 
 // input: place, time
-app.get('/api/v1/weather/:zip/:year/:month/:day', async (req, res) => {
-  const { zip, year, month, day } = req.params
+// input a req params: /api/v1/weather/:zip/:year/:month/:day
+app.get('/api/v1/weather', async (req, res) => {
+  const { zip, year, month, day } = req.query
 
   const apiKey = config.weather_key
   // const startDate = 'next7days';
@@ -48,8 +49,9 @@ app.get('/api/v1/weather/:zip/:year/:month/:day', async (req, res) => {
 
   // console.log(data)
 
-  // where days.datetime = '2025-12-09'
+  // days.datetime format = '2025-12-09'
   res.json({
+    reqDate: year + "-" + month + "-" + day,
     temp: current.temp,
     precipitation: current.precip,
     conditions: current.conditions,
