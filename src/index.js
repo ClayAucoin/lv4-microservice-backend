@@ -13,7 +13,7 @@ app.get('/', (req, res) => {
 });
 
 // input: place, time
-app.get("/api/v1/weather/:place/:year/:month/:day", (req, res) => {
+app.get("/api/v1/weather/:place/:year/:month/:day", async (req, res) => {
   const { place, year, month, day } = req.params
   // const place = req.params.place
   // const year = req.params.year
@@ -25,6 +25,36 @@ app.get("/api/v1/weather/:place/:year/:month/:day", (req, res) => {
   console.log("month:", month)
   console.log("day:", day)
 
+  const fetchUrl = "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/New%20Orleans%2CLA?unitGroup=us&include=hours,events,current&contentType=json&key=EJRHR5YF55YQRZQDZ4CNVDG7S"
+
+  const result = await fetch(fetchUrl)
+  const data = await result.json()
+
+  console.log(data)
+
+  // fetch(fetchUrl, {
+  //   method: 'GET',
+  //   headers: {}
+  // })
+  //   .then(response => {
+  //     if (!response.ok) {
+  //       throw response;
+  //     }
+  //     return response.json();
+  //   })
+  //   .then(weatherData => {
+  //     console.log("Weather data for New Orleans, LA:", weatherData);
+  //     // You can process weatherData here to display or analyze it
+  //   })
+  //   .catch(errorResponse => {
+  //     if (errorResponse.text) {
+  //       errorResponse.text().then(errorMessage => {
+  //         console.error("Error retrieving weather data:", errorMessage);
+  //       });
+  //     } else {
+  //       console.error("Unknown error occurred");
+  //     }
+  //   });
 
   res.json({
     precipitation_percent: "80%",
