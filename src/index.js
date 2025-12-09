@@ -7,7 +7,7 @@ import { validateAPIKey, validateWeatherQuery } from "./middleware/validators.js
 const app = express();
 const PORT = config.port;
 
-app.get('/', (req, res) => {
+app.get('/', validateAPIKey, (req, res) => {
   // TODO return a JSON object to ensure proof of life of the server.
   const outputMessage = 'Required parameters: '
   res.json({
