@@ -2,7 +2,7 @@
 
 import express from 'express'
 import { config } from './config.js'
-import { validateWeatherQuery } from "./middleware/validators.js"
+import { validateAPIKey, validateWeatherQuery } from "./middleware/validators.js"
 
 const app = express();
 const PORT = config.port;
@@ -23,27 +23,16 @@ app.get('/', (req, res) => {
   })
 });
 
-// input: place, time
-// input a req params: /api/v1/weather/:zip/:year/:month/:day
-app.get('/api/v1/weather', validateWeatherQuery, async (req, res) => {
+app.get('/api/v1/weather', validateAPIKey, validateWeatherQuery, async (req, res) => {
   const { zip, year, month, day } = req.weatherParams
 
   console.log(req.weatherParams)
 
   // retrieve config vars
   const apiKey = config.weather_key
-  const service_key = config.service_key
 
-  // construct date
   const startDate = `${year}-${month}-${day}` // or 'next7days'
-
-  console.log(startDate)
-
-  // protected route
-  const serviceKey = req.headers['x-service-key']
-  if (serviceKey !== service_key) {
-    return res.status(400).json({ message: 'Not authorized.' })
-  }
+  // console.log(startDate)
 
   const fetchUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${zip}/${startDate}?unitGroup=us&include=current&contentType=json&key=${apiKey}`;
 

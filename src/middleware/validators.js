@@ -1,5 +1,16 @@
 // src/middleware/validators.js
 
+import { config } from '../config.js'
+
+export function validateAPIKey(req, res, next) {
+  const serviceKey = req.headers['x-api-key']
+  const service_key = config.service_key
+  if (serviceKey !== service_key) {
+    return res.status(400).json({ message: 'Not authorized.' })
+  }
+  next()
+}
+
 export function validateWeatherQuery(req, res, next) {
   const errors = [];
 
