@@ -1,6 +1,7 @@
 // src/index.js
 
-import express from 'express';
+import express from 'express'
+import { config } from "./config.js"
 
 const app = express();
 const PORT = 3001;
@@ -16,7 +17,8 @@ app.get('/', (req, res) => {
 app.get("/api/v1/weather/:zip/:year/:month/:day", async (req, res) => {
   const { zip, year, month, day } = req.params
 
-  const apiKey = 'EJRHR5YF55YQRZQDZ4CNVDG7S';
+  // const apiKey = 'EJRHR5YF55YQRZQDZ4CNVDG7S';
+  const apiKey = config.weather_key
   const startDate = 'next7days';
   const unitGroup = 'us';
 
@@ -24,7 +26,8 @@ app.get("/api/v1/weather/:zip/:year/:month/:day", async (req, res) => {
 
   // protected route
   const serviceKey = req.headers["x-service-key"]
-  if (serviceKey !== "73M4dP9I0t9RYXBYS4hAXfcQ9r42B2jd7lNXy0Pl") {
+  const service_key = config.service_key
+  if (serviceKey !== service_key) {
     return res.json({ message: "Not authorized." })
   }
 
