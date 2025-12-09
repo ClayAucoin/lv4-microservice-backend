@@ -27,40 +27,53 @@ app.get('/', (req, res) => {
 app.get('/api/v1/weather', async (req, res) => {
   const { zip, year, month, day } = req.query
 
+  // retrieve config vars
   const apiKey = config.weather_key
-  // const startDate = 'next7days';
-  const startDate = year + '-' + month + '-' + day  // 'next7days'
-  const unitGroup = 'us';
+  const service_key = config.service_key
 
+  // construct date
+  const startDate = `${year}-${month}-${day}` // or 'next7days'
 
+  console.log(startDate)
 
   // protected route
   const serviceKey = req.headers['x-service-key']
-  const service_key = config.service_key
   if (serviceKey !== service_key) {
-    return res.json({ message: 'Not authorized.' })
+    return res.status(400).json({ message: 'Not authorized.' })
   }
 
-  const fetchUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${zip}/${startDate}?unitGroup=${unitGroup}&include=current&contentType=json&key=${apiKey}`;
+  const fetchUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${zip}/${startDate}?unitGroup=us&include=current&contentType=json&key=${apiKey}`;
 
-  const result = await fetch(fetchUrl)
-  const data = await result.json()
-  const current = data.currentConditions
+  try {
+    const result = await fetch(fetchUrl)
 
-  // console.log(data)
+    const data = await result.json()
 
-  // days.datetime format = '2025-12-09'
-  res.json({
-    reqDate: year + "-" + month + "-" + day,
-    temp: current.temp,
-    precipitation: current.precip,
-    conditions: current.conditions,
-    icon: current.icon,
-    sunrise: current.sunrise,
-    sunset: current.sunset,
-    description: data.days[0].description,
-    // data: data,
-  })
+    const dayData = data.days && data.days[0]
+    const current = data.currentConditions
+
+    if (!dayData && !current) {
+      return res.status(404).json({ message: 'No weather data found for that date.' })
+    }
+
+    const source = dayData || current
+
+    // days.datetime format = '2025-12-09'
+    res.json({
+      reqDate: startDate,
+      temp: source.temp,
+      precipitation: source.precip,
+      conditions: source.conditions,
+      icon: source.icon,
+      sunrise: source.sunrise,
+      sunset: source.sunset,
+      description: dayData?.description || source.conditions,
+      // raw: data,
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Internal server error' })
+  }
 })
 
 const server = app.listen(PORT, () => {
