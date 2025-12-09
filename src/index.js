@@ -7,9 +7,9 @@ import { validateAPIKey, validateWeatherQuery } from "./middleware/validators.js
 const app = express();
 const PORT = config.port;
 
+// ---- root route ----
 app.get('/', validateAPIKey, (req, res) => {
-  // TODO return a JSON object to ensure proof of life of the server.
-  const outputMessage = 'Required parameters: '
+  console.log('GET /')
   res.json({
     message: 'This endpoint returns the weather for a specific date.',
     requiredParameters: {
@@ -21,24 +21,18 @@ app.get('/', validateAPIKey, (req, res) => {
     format: '/api/v1/weather?zip={zip}&year={year}&month={month}&day={day}',
     example: '/api/v1/weather?zip=70123&year=2024&month=12&day=25'
   })
-});
+})
 
+// ---- GET /api/v1/weather route ----
 app.get('/api/v1/weather', validateAPIKey, validateWeatherQuery, async (req, res) => {
-  const { zip, year, month, day } = req.weatherParams
+  console.log('GET /api/v1/weather')
+  const { zip, year, month, day, dateString } = req.weatherParams
 
-  console.log(req.weatherParams)
-
-  // retrieve config vars
   const apiKey = config.weather_key
-
-  const startDate = `${year}-${month}-${day}` // or 'next7days'
-  // console.log(startDate)
-
-  const fetchUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${zip}/${startDate}?unitGroup=us&include=current&contentType=json&key=${apiKey}`;
+  const fetchUrl = `https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline/${zip}/${dateString}?unitGroup=us&include=current&contentType=json&key=${apiKey}`;
 
   try {
     const result = await fetch(fetchUrl)
-
     const data = await result.json()
 
     const dayData = data.days && data.days[0]
@@ -47,12 +41,10 @@ app.get('/api/v1/weather', validateAPIKey, validateWeatherQuery, async (req, res
     if (!dayData && !current) {
       return res.status(404).json({ message: 'No weather data found for that date.' })
     }
-
     const source = dayData || current
 
-    // days.datetime format = '2025-12-09'
     res.json({
-      reqDate: startDate,
+      reqDate: dateString,
       temp: source.temp,
       precipitation: source.precip,
       conditions: source.conditions,
@@ -85,3 +77,4 @@ export function error404(req, res, next) {
     }
   })
 }
+app.use(error404)
