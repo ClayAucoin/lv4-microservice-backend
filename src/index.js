@@ -19,7 +19,8 @@ app.get("/api/v1/weather/:zip/:year/:month/:day", async (req, res) => {
 
   // const apiKey = 'EJRHR5YF55YQRZQDZ4CNVDG7S';
   const apiKey = config.weather_key
-  const startDate = 'next7days';
+  // const startDate = 'next7days';
+  const startDate = year + "-" + month + "-" + day
   const unitGroup = 'us';
 
 
@@ -35,17 +36,20 @@ app.get("/api/v1/weather/:zip/:year/:month/:day", async (req, res) => {
 
   const result = await fetch(fetchUrl)
   const data = await result.json()
+  const current = data.currentConditions
 
   // console.log(data)
 
   // where days.datetime = "2025-12-09"
   res.json({
-    temp: "53.0", // currentConditions.temp
-    precipitation: "0.0", // currentConditions.precip
-    conditions: "clear", // currentConditions.conditions
-    icon: "clear-day", // currentConditions.icon
-    sunrise: "06:45:34", // currentConditions.sunrise
-    sunset: "17:01:18", // currentConditions.sunset
+    temp: current.temp,
+    precipitation: current.precip,
+    conditions: current.conditions,
+    icon: current.icon,
+    sunrise: current.sunrise,
+    sunset: current.sunset,
+    description: data.days[0].description,
+    // data: data,
   })
 })
 
