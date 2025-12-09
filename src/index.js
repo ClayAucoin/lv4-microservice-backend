@@ -4,7 +4,7 @@ import express from 'express'
 import { config } from './config.js'
 
 const app = express();
-const PORT = 3001;
+const PORT = config.port;
 
 app.get('/', (req, res) => {
   // TODO return a JSON object to ensure proof of life of the server.
