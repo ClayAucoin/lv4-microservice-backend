@@ -1,4 +1,4 @@
-# MICROSERVICE-1-BACKEND
+# MICROSERVICE-BACKEND
 
 A lightweight Node.js weather microservice that retrieves daily weather information for a given ZIP code and date using the Visual Crossing Weather API. This service includes API-key protection, complete request validation, and helpful error responses.
 
