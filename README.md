@@ -64,16 +64,15 @@ This backend microservice accepts a ZIP code and a date, validates the input, qu
 ## Project Structure
 
 ```text
-src/
-  index.js
-  config.js
-  middleware/
-    validators.js
+.
+└── src/
+    ├── app.js              # Express app setup, routes, and 404 handler
+    ├── index.js            # Entry point that starts the HTTP server
+    ├── config.js           # Configuration values (port and API keys)
+    │
+    └── middleware/
+        └── validators.js   # API key middleware and weather query validator
 ```
-
-- `index.js` – Express app setup, routes, and 404 handler.
-- `config.js` – Configuration values (port and API keys).
-- `middleware/validators.js` – API key middleware and weather query validator.
 
 ---
 
@@ -187,42 +186,33 @@ Validation is handled by `validateWeatherQuery` middleware, which inspects query
 - Must be exactly **5 digits**
 - Example: `70123`
 
-### Year
+### Date
 
+- Example: `2025-01-31`
 - Required
-- Must be an integer
-- Must be between **1900 and 2100**
-
-### Month
-
-- Required
-- Must be an integer
-- Must be between **1 and 12**
-
-### Day
-
-- Required
-- Must be an integer
-- Must be between **1 and 31**
+- Year must be between **1900 and 2100**
+- Month must be between **01 and 12**
+- Day must be between **01 and 31**
 - Additionally, year, month, and day must form a **valid calendar date**
+
   - e.g., `2025-02-30` is rejected as an invalid date
 
-On validation failure, a sample response looks like:
+  On validation failure, a sample response looks like:
 
-```json
-{
-  "message": "Invalid request parameters",
-  "errors": [
-    {
-      "field": "zip",
-      "message": "zip must be a 5-digit number",
-      "value": "abc"
-    }
-  ]
-}
-```
+  ```json
+  {
+    "message": "Invalid request parameters",
+    "errors": [
+      {
+        "field": "zip",
+        "message": "zip must be a 5-digit number",
+        "value": "abc"
+      }
+    ]
+  }
+  ```
 
-Status code: **422 Unprocessable Entity**
+  Status code: **422 Unprocessable Entity**
 
 ---
 
@@ -239,12 +229,10 @@ Returns JSON describing the service and expected query parameters:
   "message": "This endpoint returns the weather for a specific date.",
   "requiredParameters": {
     "zip": "5-digit US ZIP code",
-    "year": "4-digit year",
-    "month": "1-12",
-    "day": "1-31"
+    "date": "4-digit year" - "2-digit month (01-12)" - "2-digit day (01-31)"
   },
-  "format": "/api/v1/weather?zip={zip}&year={year}&month={month}&day={day}",
-  "example": "/api/v1/weather?zip=70123&year=2024&month=12&day=25"
+  "format": "/api/v1/weather?zip={zip}&date={year-month-day}",
+  "example": "/api/v1/weather?zip=70123&date=2024-12-25"
 }
 ```
 
@@ -257,9 +245,7 @@ Main weather endpoint, guarded by both `validateAPIKey` and `validateWeatherQuer
 **Query parameters:**
 
 - `zip` – 5-digit ZIP code
-- `year` – 4-digit year
-- `month` – month number (1–12)
-- `day` – day of month (1–31)
+- `date` – 4-digit year-month number (01–12)-day of month (01–31)
 
 **Headers:**
 
@@ -284,7 +270,7 @@ Internally, the service:
 Using curl:
 
 ```bash
-curl "http://localhost:3001/api/v1/weather?zip=70123&year=2025&month=12&day=10"   -H "x-api-key: YOUR_INTERNAL_API_KEY"
+curl "http://localhost:3001/api/v1/weather?zip=70123&date=2025-12-10"   -H "x-api-key: YOUR_INTERNAL_API_KEY"
 ```
 
 ---

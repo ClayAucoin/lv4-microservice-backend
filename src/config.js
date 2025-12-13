@@ -8,5 +8,5 @@ export const config = {
   port: process.env.PORT || 3000,
   nodeEnv: process.env.NODE_ENV || "development",
   weather_key: process.env.WEATHER_KEY || "",
-  api_key: process.env.API_KEY || "",
+  weather_service_key: process.env.WEATHER_SERVICE_KEY || "",
 }
