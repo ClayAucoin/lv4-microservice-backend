@@ -32,7 +32,7 @@ app.use((err, req, res, next) => {
 export function globalErrorHandler(err, req, res, next) {
 
   if (config.nodeEnv !== "test") {
-    console.log("stack:", err.stack || err)
+    // console.log("stack:", err.stack || err)
   }
 
   const status = err.status || 500

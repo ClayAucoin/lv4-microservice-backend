@@ -296,12 +296,43 @@ Exact values depend on Visual Crossing’s data for that date and ZIP.
 
 ## Error Handling
 
+All errors eventually pass through the global error handler in `src/app.js`, which produces a consistent JSON error structure:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "status": 422,
+    "message": "Missing required fields",
+    "code": "VALIDATION_ERROR",
+    "details": {
+      "missing": ["imdb_id", "title"]
+    }
+  }
+}
+```
+
+### Error Shape
+
+- `ok`: always `false` for errors
+- `error.status`: HTTP status code (e.g. 400, 404, 422, 500)
+- `error.message`: human-readable message
+- `error.code`: machine-friendly error code (e.g. `INVALID_ID`, `VALIDATION_ERROR`, `READ_ERROR`, `INSERT_ERROR`, `UPDATE_ERROR`, `DELETE_ERROR`, `NOT_FOUND`)
+- `error.details` (optional): additional data about the error (missing fields, invalid values, etc.)
+
 ### Unauthorized (401)
 
 Missing or invalid API key:
 
 ```json
-{ "message": "Not authorized." }
+{
+  "ok": false,
+  "error": {
+    "status": 401,
+    "message": "Not authorized.",
+    "code": "MISSING_API_TOKEN"
+  }
+}
 ```
 
 ### Validation Errors (422)
@@ -327,7 +358,10 @@ If Visual Crossing returns no usable data for that date:
 
 ```json
 {
-  "message": "No weather data found for that date."
+  "ok": true,
+  "status": 404,
+  "message": "No weather data found for that date.",
+  "date": 1940-01-31
 }
 ```
 
@@ -337,25 +371,23 @@ Unexpected errors during fetch or processing:
 
 ```json
 {
-  "message": "Internal server error"
+  "ok": false,
+  "error": {
+    "status": 500,
+    "message": "Internal server error",
+    "code": "INTERNAL_ERROR",
+    "details": {
+      "missing": "error details"
+    }
+  }
 }
 ```
 
 ---
 
-## 404 Handler
+### 404 Handler
 
-Any route that does not match a defined endpoint is handled by a JSON 404 middleware:
-
-```json
-{
-  "message": "Route not found",
-  "details": {
-    "path": "/some/unknown/path",
-    "method": "GET"
-  }
-}
-```
+Unknown routes are handled by a dedicated 404 middleware, which uses `sendError` to produce a `NOT_FOUND` error including the path and method that were requested.
 
 ---
 
