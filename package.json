@@ -1,6 +1,9 @@
 {
-  "name": "lv4-microservice-1-backend",
+  "name": "weather-microservice",
   "version": "1.0.0",
+  "pm2": {
+    "name": "weather"
+  },
   "main": "src/index.js",
   "type": "module",
   "scripts": {
